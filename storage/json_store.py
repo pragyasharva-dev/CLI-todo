@@ -47,13 +47,15 @@ def save_cache_json(task):
 
 
 def ensure_len(filepath, maxlen:int):  # this is for the cache file mainly
-    x = load_tasks(filepath)
-    if len(x) > maxlen:
-        new_x = x[-maxlen:]
-        save_tasks(new_x, filepath)
+    x = load_tasks(filepath)            
+    #print("[DEBUG]: ", len(x))
+    if len(x) >= maxlen:
+        new_x = x[-1:-maxlen:-1]       # fixed error, wasnt working earlier because of slicing error
+        #print(f"[DEBUG] : {new_x}")
+        save_cache_json(new_x[::-1])   # used save_tasks earlier which was showing error because of differences in storing methods
 
 def update_cache():
-    storage = load_tasks(TASK_FILE)
+    storage = load_tasks(TASK_FILE)    # loads both the json files and the cache list containing the states get appended with the current task list
     #print(f"[DEBUG]: {storage}")
     cache = load_tasks(CACHE_FILE)
     #print(f"[DEBUG]: {cache}")
@@ -63,7 +65,7 @@ def update_cache():
 
     '''with open(CACHE_FILE, "w") as f:
         data = {"tasks" : cache}
-        json.dump(data, f, indent=4)'''
+        json.dump(data, f, indent=4)'''   # realised here that the already existing save_tasks() functions wont work here
     save_cache_json(cache)
 
 
