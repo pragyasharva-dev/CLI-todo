@@ -1,8 +1,8 @@
-from storage.json_store import load_tasks, save_tasks
+from storage.json_store import load_tasks, save_tasks, TASK_FILE
 
 def delete_task(task_no : int):
     """Deletes a task"""
-    tasks = load_tasks()  # Loads the tasks from json
+    tasks = load_tasks(TASK_FILE)  # Loads the tasks from json
     
     if not tasks:
         print("No tasks to delete")  # Checks for empty task list
@@ -16,6 +16,6 @@ def delete_task(task_no : int):
 
     removed = tasks.pop(index)   # Delete the task
     
-    save_tasks(tasks)    # Save the changes in the json
+    save_tasks(tasks, TASK_FILE)    # Save the changes in the json
         
     print(f"Deleted: {removed}")
