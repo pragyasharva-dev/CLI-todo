@@ -173,4 +173,5 @@ Thumbs.db
 
 # Project specific
 tasks.json
+cache.json
 storage/tasks.json
