@@ -1,3 +1,4 @@
+from commands.flush import flush_task_list
 from storage.json_store import ensure_len
 import sys
 from storage.json_store import CACHE_FILE, MAX_LEN, update_cache
@@ -33,10 +34,15 @@ commands = {   # Dictionary containing the functions and argument types of the c
     "undo" : {
         "func" : undo_task,
         "args" : [],
+        },
+
+    "flush" : {
+        "func" : flush_task_list,
+        "args" : []
         }
     }
 
-action_commands = ["add", "delete", "update"]
+action_commands = ["add", "delete", "update", "flush"]
 
 
 def main():
