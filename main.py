@@ -1,9 +1,12 @@
+from storage.json_store import ensure_len
 import sys
+from storage.json_store import CACHE_FILE, MAX_LEN, update_cache
 from commands.list import list_task
 from commands.add import add_task
 from commands.delete import delete_task
 from commands.help import help_task
 from commands.update import update_task_priority
+from commands.undo import undo_task
 
 commands = {   # Dictionary containing the functions and argument types of the commands
     "add" : {
@@ -26,7 +29,14 @@ commands = {   # Dictionary containing the functions and argument types of the c
         "func" : update_task_priority,
         "args" : ["int", "int"]
         },
+
+    "undo" : {
+        "func" : undo_task,
+        "args" : [],
+        }
     }
+
+action_commands = ["add", "delete", "update"]
 
 
 def main():
@@ -36,6 +46,8 @@ def main():
 
     name = sys.argv[1].lower()   # Command's name taken from CLI
     command = commands.get(name) # Extracting the corresponding command name from the dictionary
+    
+
 
     if not command:
         print("Unknown command") # if the provided command name isnt in the command list, throws error
@@ -62,6 +74,10 @@ def main():
                 return
         else:
             parsed_args.append(value)            # Store all the converted or not arguments in the list
+
+    if name in action_commands:
+        ensure_len(CACHE_FILE, MAX_LEN)
+        update_cache()
 
     command["func"](*parsed_args)                # Stylish way of dynamically calling the functions from the dictionary, 
                                                  # command["func"] extracts thefunction name and (*parsed_args) passes the arguments through the called function
