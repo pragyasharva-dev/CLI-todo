@@ -1,9 +1,9 @@
-from storage.json_store import load_tasks
+from storage.json_store import load_tasks, TASK_FILE
 
 
 def list_task():
     """Lists all the tasks"""
-    tasks = load_tasks()  # Loads the tasks from json
+    tasks = load_tasks(TASK_FILE)  # Loads the tasks from json
 
     if not tasks:
         print("No tasks")  # Checks for empty task list
