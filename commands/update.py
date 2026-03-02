@@ -1,4 +1,5 @@
 from storage.json_store import load_tasks, save_tasks, TASK_FILE
+#from models.classes import Task
 
 def update_task_priority(task_no : int, desired_pos : int):
     """Updates the priority of tasks"""
@@ -27,6 +28,6 @@ def update_task_priority(task_no : int, desired_pos : int):
 
     save_tasks(tasks, TASK_FILE)  # Saving the updated changes in json
 
-    print(f"Moved {temp} from {task_no} to {desired_pos}")
+    print(f"Moved {temp.name} from {task_no} to {desired_pos}")
 
 
