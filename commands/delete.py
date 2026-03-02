@@ -1,4 +1,5 @@
 from storage.json_store import load_tasks, save_tasks, TASK_FILE
+#from models.classes import Task
 
 def delete_task(task_no : int):
     """Deletes a task"""
@@ -18,4 +19,4 @@ def delete_task(task_no : int):
     
     save_tasks(tasks, TASK_FILE)    # Save the changes in the json
         
-    print(f"Deleted: {removed}")
+    print(f"Deleted: {removed.name}")
