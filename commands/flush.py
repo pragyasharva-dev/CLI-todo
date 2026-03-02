@@ -1,4 +1,4 @@
-from storage.json_store import TASK_FILE, save_tasks
+from storage.json_store import TASK_FILE
 import json
 
 def flush_task_list():
