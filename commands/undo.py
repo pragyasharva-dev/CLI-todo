@@ -1,9 +1,9 @@
 import json
-from storage.json_store import load_tasks, save_tasks, CACHE_FILE, TASK_FILE, save_cache_json
+from storage.json_store import save_tasks, load_cache, CACHE_FILE, TASK_FILE, save_cache_json
 
 def undo_task():
     """Undo a change"""
-    cache = load_tasks(CACHE_FILE)  # loads the cache list of states
+    cache = load_cache(CACHE_FILE)  # loads the cache list of states
     if not cache:
         print("Unable to undo")     # checks for empty history
         return
