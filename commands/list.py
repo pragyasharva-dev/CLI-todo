@@ -1,4 +1,5 @@
 from storage.json_store import load_tasks, TASK_FILE
+#from models.classes import Task
 
 
 def list_task():
@@ -11,4 +12,4 @@ def list_task():
 
     else:
         for i, task in enumerate(tasks, start=1):  # Returns the Task number and task itself
-            print(i, ".", task)
+            print(i, ".", task.name)
