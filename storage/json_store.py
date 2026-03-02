@@ -1,3 +1,4 @@
+from models.classes import Task
 from pathlib import Path
 import json
 
@@ -24,30 +25,60 @@ def ensure_storage(filepath):
 
 def load_tasks(filepath):
     """Load the contents of tasks.json"""
-    ensure_storage(filepath)                   # Checks for json file
+    ensure_storage(filepath)
+    result = []                       # Checks for json file
     with open(filepath, "r") as f:    # Loads the files
         data = json.load(f)
 
-    return data["tasks"]    # returns the task list
+    for i in data["tasks"]:
+        result.append(Task.from_dict(i))
 
+    return result    # returns the task list
 
-def save_tasks(tasks, filepath):
-    """Writes the tasks in tasks.json"""
+def load_cache(filepath):
+    '''Loads the cache task list'''
     ensure_storage(filepath)
+    cache = []
+    with open(filepath, "r") as f:
+        data = json.load(f)
+    for i in data["tasks"]:  # iterates through the states
+        task = []           # creates empty list to store the task state of the current iteration
+        for j in i:            
+            task.append(Task.from_dict(j))  # goes through the dictionaries in the current states, converts them into Task objects and appends in the empty task list
+        cache.append(task)      # appends all the lists of Task objects
+    
+    return cache
+    
+
+
+def save_tasks(tasks , filepath):
+    """Overwrites the tasks in tasks.json"""
+    ensure_storage(filepath)
+    result = []
+    for item in tasks:
+        result.append(item.to_dict())
     with open(filepath, "w") as f:     # Opens the json file in write mode and dumps the changes in the json
-        data = {"tasks":tasks}
+        data = {"tasks":result}
         json.dump(data, f, indent=4)
 
 
-def save_cache_json(task):
+def save_cache_json(tasks):
+    """Cache stores raw task list, not wrapped structure"""
+    cache = []
+    for item in tasks:   
+        task = []
+        for j in item:                    # same logic as load_cache()
+            task.append(j.to_dict())
+        cache.append(task)
     with open(CACHE_FILE, "w") as f:
-        data = {"tasks" : task}
+        data = {"tasks" : cache}
         json.dump(data, f, indent=4)
 
 
 
 def ensure_len(filepath, maxlen:int):  # this is for the cache file mainly
-    x = load_tasks(filepath)            
+    """Ensures that the length of the cache list doesnt exceed max length"""
+    x = load_cache(filepath)            
     #print("[DEBUG]: ", len(x))
     if len(x) >= maxlen:
         new_x = x[-1:-maxlen:-1]       # fixed error, wasnt working earlier because of slicing error
@@ -55,9 +86,10 @@ def ensure_len(filepath, maxlen:int):  # this is for the cache file mainly
         save_cache_json(new_x[::-1])   # used save_tasks earlier which was showing error because of differences in storing methods
 
 def update_cache():
+    """Adds the latest state in the cache list"""
     storage = load_tasks(TASK_FILE)    # loads both the json files and the cache list containing the states get appended with the current task list
     #print(f"[DEBUG]: {storage}")
-    cache = load_tasks(CACHE_FILE)
+    cache = load_cache(CACHE_FILE)
     #print(f"[DEBUG]: {cache}")
 
     cache.append(storage)
