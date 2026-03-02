@@ -1,5 +1,7 @@
 # CLI-todo
 
+**Version:** 1.0.0
+
 A clean, command-line based task manager written in Python. It allows you to manage your tasks directly from the terminal with persistent storage and action-undo capabilities.
 
 ## Usage
