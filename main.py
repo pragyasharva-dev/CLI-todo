@@ -1,4 +1,3 @@
-from commands.flush import flush_task_list
 from storage.json_store import ensure_len
 import sys
 from storage.json_store import CACHE_FILE, MAX_LEN, update_cache
@@ -8,6 +7,7 @@ from commands.delete import delete_task
 from commands.help import help_task
 from commands.update import update_task_priority
 from commands.undo import undo_task
+from commands.flush import flush_task_list
 
 commands = {   # Dictionary containing the functions and argument types of the commands
     "add" : {
