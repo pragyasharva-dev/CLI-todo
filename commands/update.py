@@ -1,15 +1,17 @@
-from storage.json_store import load_tasks, save_tasks, TASK_FILE
+from storage.json_store import load_tasks, save_tasks, TASK_FILE, CACHE_FILE, MAX_LEN, ensure_len, update_cache
 #from models.classes import Task
 
 def update_task_priority(task_no : int, desired_pos : int):
     """Updates the priority of tasks"""
+    ensure_len(CACHE_FILE, MAX_LEN)
+    update_cache()
     tasks = load_tasks(TASK_FILE) # Loads the tasks from json
 
     if not tasks:   # Checks for empty task list
         print("no task to update")
         return
 
-    index = task_no - 1 # Adjusting the indices for operation 
+    index = task_no - 1  # Adjusting the indices for operation 
     pos = desired_pos - 1
 
     if index < 0 or index >= len(tasks):  # Input validation
