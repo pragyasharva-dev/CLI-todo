@@ -4,7 +4,7 @@ from datetime import datetime
 class Task:
     def __init__(self, name: str, priority = False, created_at=None): 
         self.name = name          # name of the task
-        self.priority = priority  # priority of he task, True : high, False : low
+        self.priority = priority  # priority of the task, True : high, False : low
         self.created_at = created_at or datetime.now()  # Task creation time
 
 
@@ -29,7 +29,9 @@ class Task:
 
         return cls(**data)  # Creates an object with the attributes contained in the data dictionary and returns
 
-
+    def toggle_priority(self):
+        """Toggles the priority"""
+        self.priority = not self.priority
 
     
 
