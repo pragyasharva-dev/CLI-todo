@@ -1,15 +1,23 @@
 # CLI-todo
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 
-A clean, command-line based task manager written in Python. It allows you to manage your tasks directly from the terminal with persistent storage and action-undo capabilities.
+A command-line and graphical task manager written in Python. It allows you to manage your tasks directly from the terminal or via a GUI, with persistent storage and action-undo capabilities.
 
-## Usage
+### CLI Usage
 
 Run the program via the terminal:
 
 ```bash
 python main.py <command> [arguments]
+```
+
+### GUI Usage
+
+To launch the Graphical User Interface:
+
+```bash
+python -m GUI.app
 ```
 
 ### Available Commands
@@ -41,3 +49,9 @@ python main.py <command> [arguments]
 * **help**
   Displays the help guide with a list of available commands.
   Example: `python main.py help`
+
+### Graphical Features
+The newly introduced GUI provides simple interactive buttons to handle these same commands, along with specialized visual tools:
+* **Priority View**: Opens a dedicated window showing tasks ordered by priority.
+* **Toggle Priority**: Sets a selected task to high/low priority.
+* **Toggle Completion**: Marks a submitted task as completed/uncompleted.
