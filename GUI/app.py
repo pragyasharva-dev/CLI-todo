@@ -1,5 +1,4 @@
 # --------------------- Imports ---------------------------
-from tkinter import Toplevel
 from storage.json_store import load_tasks, TASK_FILE
 from src.task_service import add_task, delete_task, toggle_priority_command, toggle_completion_command, update_task_priority, undo_task, flush_task_list, list_task_priority
 import tkinter as tk
