@@ -4,6 +4,13 @@
 
 A command-line and graphical task manager written in Python. It allows you to manage your tasks directly from the terminal or via a GUI, with persistent storage and action-undo capabilities.
 
+### ⬇️ Download
+
+You can download the compiled Windows executable directly:
+**[Download TodoApp.exe](https://github.com/pragyasharva/CLI-todo/releases/latest/download/TodoApp.exe)**
+
+---
+
 ### CLI Usage
 
 Run the program via the terminal:
