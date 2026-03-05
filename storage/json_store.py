@@ -4,7 +4,7 @@ import os
 import json
 
 APP_NAME = "TodoApp"
-BASE_DIR = Path(os.getenv("LOACLAPPDATA")) / APP_NAME
+BASE_DIR = Path(os.getenv("LOCALAPPDATA")) / APP_NAME
 BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 TASK_FILE = BASE_DIR / "tasks.json"                 # Setting up the task storage json file's path
