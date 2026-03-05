@@ -2,8 +2,10 @@ from models.classes import Task
 from pathlib import Path
 import json
 
+APP_NAME = "TodoApp"
+BASE_DIR = Path(os.getenv("LOACLAPPDATA")) / APP_NAME
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
-BASE_DIR = Path(__file__).resolve().parent.parent   # Setting up the parent directory
 TASK_FILE = BASE_DIR / "tasks.json"                 # Setting up the task storage json file's path
 CACHE_FILE = BASE_DIR / "cache.json"                # Setting up the cache memory json file's path
 MAX_LEN = 5
