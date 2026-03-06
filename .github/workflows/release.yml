@@ -36,7 +36,7 @@ jobs:
 
       - name: Build executable
         run: |
-          pyinstaller --onefile --windowed --name TodoApp --hidden-import PyQt6  --add-data "GUI/assets:GUI/assets" GUI/app.py
+          pyinstaller --onefile --windowed --name TodoApp --icon=GUI/assets/icon.ico --hidden-import PyQt6  --add-data "GUI/assets:GUI/assets" GUI/app.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

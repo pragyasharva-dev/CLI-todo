@@ -30,9 +30,9 @@ jobs:
         run: |
           pytest
 
-      - name: Build executable
+      - name: Build executable check
         run: |
-          pyinstaller --onefile --windowed --name TodoApp GUI/app.py
+          pyinstaller --onefile --windowed --name TodoApp --icon=GUI/assets/icon.ico --hidden-import PyQt6 --add-data "GUI/assets:GUI/assets" GUI/app.py
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
