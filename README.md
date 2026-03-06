@@ -1,6 +1,6 @@
 # CLI-todo & TodoApp GUI
 
-**Version:** 2.0.0
+**Version:** 2.0.1
 
 A powerful, dual-interface task manager written in Python. It allows you to manage your tasks at lighting speed from your terminal, or through a beautiful, fully-themed Graphical User Interface with persistent storage and action-undo capabilities.
 
@@ -10,6 +10,12 @@ You can download the compiled Windows executable directly. **It includes an Auto
 **[Download TodoApp.exe](https://github.com/pragyasharva-dev/CLI-todo/releases/latest/download/TodoApp.exe)**
 
 ---
+
+### 📝 Patch Notes (v2.0.1)
+* **Bug Fix:** Fixed an issue where the priority sorting view (`update_task_view`) ordered High Priority tasks to the bottom of the list.
+* **Bug Fix:** Secured the caching mechanism for the Undo tool to ensure that invalid or aborted actions no longer clog the memory history.
+* **Enhancement:** Added intensive multi-state undo memory tracking and test coverage natively within Pytest.
+* **Enhancement:** Corrected GUI asset pathing so PyInstaller can accurately bundle custom background themes and window icons into the `TodoApp.exe` standalone file.
 
 ### 🎨 Graphical Features (v2.0.0 Update)
 The entire GUI has been overhauled using **PyQt6** to provide a smooth, modern, and highly customizable experience:
