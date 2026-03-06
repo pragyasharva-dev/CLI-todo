@@ -69,22 +69,42 @@ def flush_task_list():
     print("Todo list cleared!")
 
 ####### Priority view
-def list_task_priority():
+def update_task_view():
     '''Creates a temporary priority based view of the task list'''
     tasks = load_tasks(TASK_FILE)
 
     high = []
+    mid = []
     low = []
 
     for task in tasks:
         if task.priority == True:
             high.append(task)
+        elif (task.priority == False) and (task.completed == False):
+            mid.append(task)
         else:
             low.append(task)
 
-    return high+low
+    result = high + mid + low
 
+    save_tasks(result, TASK_FILE)
 
+'''def list_task_completion():
+    tasks = load_tasks(TASK_FILE)
+    high = []
+    low = []
+
+    for task in tasks:
+        if task.priority == False:
+            if task.completed == False:
+                high.append(task)
+            else:
+                low.append(task)
+
+    result = high+low
+
+    save_tasks(result, TASK_FILE)
+'''
 ####### List tasks
 def list_task():
     """Lists all the tasks"""
@@ -153,6 +173,7 @@ def update_task_priority(task_no : int, desired_pos : int):
 ####### Toggle priority
 def toggle_priority_command(task_index):
     '''Toggles the priority of a task'''
+    update_cache()
     tasks = load_tasks(TASK_FILE)
     task = tasks[task_index]
     task.toggle_priority()
@@ -160,6 +181,8 @@ def toggle_priority_command(task_index):
 
 ####### Toggle completion status
 def toggle_completion_command(task_index):
+    '''Toggles the completion state'''
+    update_cache()
     tasks = load_tasks(TASK_FILE)
     task = tasks[task_index]
     task.toggle_completion()
