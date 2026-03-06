@@ -89,22 +89,21 @@ def update_task_view():
 
     save_tasks(result, TASK_FILE)
 
-'''def list_task_completion():
+def list_task_priority():
     tasks = load_tasks(TASK_FILE)
     high = []
     low = []
 
     for task in tasks:
         if task.priority == False:
-            if task.completed == False:
-                high.append(task)
-            else:
-                low.append(task)
+            high.append(task)
+        else:
+            low.append(task)
 
     result = high+low
 
     save_tasks(result, TASK_FILE)
-'''
+
 ####### List tasks
 def list_task():
     """Lists all the tasks"""
