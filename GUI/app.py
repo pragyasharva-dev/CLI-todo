@@ -788,7 +788,11 @@ class TodoApp(QMainWindow):
         )
         if reply == QMessageBox.StandardButton.Yes:
             import subprocess
-            updater_path = os.path.join(os.path.dirname(GUI_DIR), "updater", "updater.py")
+            if hasattr(sys, '_MEIPASS'):
+                updater_path = os.path.join(sys._MEIPASS, "updater", "updater.py")
+            else:
+                updater_path = os.path.join(os.path.dirname(GUI_DIR), "updater", "updater.py")
+                
             if os.path.exists(updater_path):
                 subprocess.Popen([sys.executable, updater_path])
                 self.close()
