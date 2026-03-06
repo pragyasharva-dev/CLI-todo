@@ -28,7 +28,12 @@ from PyQt6.QtGui import QFont, QColor, QPalette, QPixmap, QBrush, QIcon
 
 # ---------------------- Paths -------------------------------------------
 
-GUI_DIR = os.path.dirname(os.path.abspath(__file__))
+if hasattr(sys, '_MEIPASS'):
+    # PyInstaller execution, assets unpack into _MEIPASS/GUI/assets
+    GUI_DIR = os.path.join(sys._MEIPASS, 'GUI')
+else:
+    # Normal execution
+    GUI_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---------------------- Stylesheets -------------------------------------
 
