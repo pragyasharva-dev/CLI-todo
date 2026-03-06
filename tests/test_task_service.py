@@ -117,11 +117,68 @@ class TestUndoTask:
         assert len(tasks) == 1
         assert tasks[0].name == "A"
 
+    def test_undo_multiple_times(self, clean_task_file, clean_cache_file, monkeypatch):
+        """Undo should correctly pop states when called multiple times sequentially."""
+        import storage.json_store as store
+        monkeypatch.setattr(store, "CACHE_FILE", clean_cache_file)
+
+        # Cache memory has 3 states from the past: [], ["A"], ["A", "B"]
+        state_1 = []
+        state_2 = [Task("A")]
+        state_3 = [Task("A"), Task("B")]
+        
+        save_cache_json([state_1, state_2, state_3])
+
+        # Current state is ["A", "B", "C"]
+        save_tasks([Task("A"), Task("B"), Task("C")], clean_task_file)
+
+        # Undo 1: Should revert to state_3 ["A", "B"]
+        undo_task()
+        tasks = load_tasks(clean_task_file)
+        assert len(tasks) == 2
+        assert tasks[-1].name == "B"
+
+        # Undo 2: Should revert to state_2 ["A"]
+        undo_task()
+        tasks = load_tasks(clean_task_file)
+        assert len(tasks) == 1
+        assert tasks[0].name == "A"
+
+        # Undo 3: Should revert to state_1 []
+        undo_task()
+        tasks = load_tasks(clean_task_file)
+        assert len(tasks) == 0
+
     def test_undo_empty_cache(self, clean_task_file, clean_cache_file, capsys):
-        """Undo with no history should print a warning."""
+        """Undo with no history should print a warning and not crash."""
         undo_task()
         captured = capsys.readouterr()
         assert "Unable to undo" in captured.out
+
+    def test_undo_after_action(self, clean_task_file, clean_cache_file, monkeypatch):
+        """Integrating action and undo: Add task then undo."""
+        import storage.json_store as store
+        monkeypatch.setattr(store, "CACHE_FILE", clean_cache_file)
+
+        # Initial state: Empty
+        save_tasks([], clean_task_file)
+        # Empty cache initially
+        save_cache_json([])
+
+        # Perform an action that should trigger update_cache
+        add_task("Test Revert")
+        
+        # Current state has 1 task, but cache has 1 state: []
+        tasks = load_tasks(clean_task_file)
+        assert len(tasks) == 1
+        assert tasks[0].name == "Test Revert"
+
+        # Undo the action
+        undo_task()
+
+        # Should be back to empty
+        tasks = load_tasks(clean_task_file)
+        assert len(tasks) == 0
 
 
 # ========================= update_task_priority =========================
