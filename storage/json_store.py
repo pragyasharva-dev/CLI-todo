@@ -9,7 +9,7 @@ BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 TASK_FILE = BASE_DIR / "tasks.json"                 # Setting up the task storage json file's path
 CACHE_FILE = BASE_DIR / "cache.json"                # Setting up the cache memory json file's path
-MAX_LEN = 5
+MAX_LEN = 10
 
 
 def ensure_storage(filepath):
