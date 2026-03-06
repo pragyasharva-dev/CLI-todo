@@ -95,7 +95,7 @@ def list_task_priority():
     low = []
 
     for task in tasks:
-        if task.priority == False:
+        if task.priority == True:
             high.append(task)
         else:
             low.append(task)
