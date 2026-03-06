@@ -42,6 +42,7 @@ class Task:
         '''Toggles state of completion'''
         self.completed = not self.completed
         if self.completed == True:
+            self.priority = False  # Automatically remove from high priority
             print(f"{self.name} marked as completed")
         else:
             print(f"{self.name} marked as uncompleted")
