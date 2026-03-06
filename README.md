@@ -1,17 +1,29 @@
-# CLI-todo
+# CLI-todo & TodoApp GUI
 
-**Version:** 1.1.0
+**Version:** 2.0.0
 
-A command-line and graphical task manager written in Python. It allows you to manage your tasks directly from the terminal or via a GUI, with persistent storage and action-undo capabilities.
+A powerful, dual-interface task manager written in Python. It allows you to manage your tasks at lighting speed from your terminal, or through a beautiful, fully-themed Graphical User Interface with persistent storage and action-undo capabilities.
 
 ### ⬇️ Download
 
-You can download the compiled Windows executable directly:
-**[Download TodoApp.exe](https://github.com/pragyasharva/CLI-todo/releases/latest/download/TodoApp.exe)**
+You can download the compiled Windows executable directly. **It includes an Auto-Updater**, so you'll never fall behind!
+**[Download TodoApp.exe](https://github.com/pragyasharva-dev/CLI-todo/releases/latest/download/TodoApp.exe)**
 
 ---
 
-### CLI Usage
+### 🎨 Graphical Features (v2.0.0 Update)
+The entire GUI has been overhauled using **PyQt6** to provide a smooth, modern, and highly customizable experience:
+* **Rich Themes:** Instantly switch between custom palettes: *Dark, Light, Hacker, Ocean, Sunset, Nature, and Cute*.
+* **Custom Backgrounds:** Selected themes feature full-image background support with glass-morphic transparencies.
+* **Drag-and-Drop:** Intuitive task reordering. Just click and drag a task to change its priority order!
+* **Quick Actions:**
+  * Click the `☆` star next to a task to toggle High Priority.
+  * Click the `☐` checkbox to mark a task as completed (auto-moves to bottom with strikethrough).
+* **Auto-Updater:** The application checks GitHub for updates silently in the background and prompts you to install them with one click.
+* **Theme Persistence:** The app remembers your selected theme and automatically loads it next time.
+* **Safety First:** Confirmation pop-ups prevent accidental task deletion or clearing.
+
+### 💻 CLI Usage
 
 Run the program via the terminal:
 
@@ -19,46 +31,11 @@ Run the program via the terminal:
 python main.py <command> [arguments]
 ```
 
-### GUI Usage
-
-To launch the Graphical User Interface:
-
-```bash
-python -m GUI.app
-```
-
-### Available Commands
-
-* **add "<task_description>"**
-  Adds a new task to your list. Enclose the description in quotes if it contains spaces.
-  Example: `python main.py add "Read a book"`
-
-* **list**
-  Displays all currently stored tasks along with their positions.
-  Example: `python main.py list`
-
-* **update <current_position> <new_position>**
-  Changes the priority of a task by moving it from its current position to a newly specified position.
-  Example: `python main.py update 3 1`
-
-* **delete <task_index>**
-  Removes a task at the specified index from the list.
-  Example: `python main.py delete 2`
-
-* **undo**
-  Reverts the most recent action (such as add, delete, update, or flush).
-  Example: `python main.py undo`
-
-* **flush**
-  Deletes all tasks, clearing the entire list.
-  Example: `python main.py flush`
-
-* **help**
-  Displays the help guide with a list of available commands.
-  Example: `python main.py help`
-
-### Graphical Features
-The newly introduced GUI provides simple interactive buttons to handle these same commands, along with specialized visual tools:
-* **Priority View**: Opens a dedicated window showing tasks ordered by priority.
-* **Toggle Priority**: Sets a selected task to high/low priority.
-* **Toggle Completion**: Marks a submitted task as completed/uncompleted.
+#### Available Commands:
+* **add "<task_description>"** - Adds a new task.
+* **list** - Displays all currently stored tasks.
+* **update <current_position> <new_position>** - Changes task priority/position.
+* **delete <task_index>** - Removes a task.
+* **undo** - Reverts the most recent action (add, delete, update, or flush).
+* **flush** - Deletes all tasks, clearing the entire list.
+* **help** - Displays the help guide.
