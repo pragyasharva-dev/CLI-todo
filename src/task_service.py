@@ -102,7 +102,8 @@ def list_task_priority():
 
     result = high+low
 
-    save_tasks(result, TASK_FILE)
+    #save_tasks(result, TASK_FILE)
+    return result
 
 ####### List tasks
 def list_task():
