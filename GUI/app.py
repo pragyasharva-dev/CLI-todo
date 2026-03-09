@@ -817,6 +817,11 @@ def run_updater_process():
     time.sleep(2)
     
     try:
+        current_exe = sys.executable
+        exe_dir = os.path.dirname(current_exe)
+        new_exe = os.path.join(exe_dir, "TodoApp_new.exe")
+        old_exe = current_exe + ".old"
+        
         response = requests.get(latest)
         release = response.json()
         assets = release.get("assets")
@@ -826,27 +831,31 @@ def run_updater_process():
         download_url = assets[0]["browser_download_url"]
         
         r = requests.get(download_url, stream=True)
-        with open("TodoApp_new.exe", "wb") as f:
+        with open(new_exe, "wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
                 
-        current_exe = sys.executable
-        old_exe = current_exe + ".old"
-        
         # Retry loop to smoothly rename the executables
         for _ in range(10):
             try:
                 if os.path.exists(old_exe):
                     os.remove(old_exe)
                 os.rename(current_exe, old_exe)
-                os.rename("TodoApp_new.exe", current_exe)
+                os.rename(new_exe, current_exe)
                 break
             except Exception:
                 time.sleep(1)
                 
-        subprocess.Popen([current_exe])
-    except Exception:
-        pass
+        # Detach the new process completely
+        DETACHED_PROCESS = 0x00000008
+        subprocess.Popen([current_exe], creationflags=DETACHED_PROCESS)
+    except Exception as e:
+        # If it fails, log it to the same directory for debugging
+        try:
+            with open(os.path.join(exe_dir, "updater_error.log"), "w") as f:
+                f.write(str(e))
+        except:
+            pass
     
     sys.exit(0)
 
