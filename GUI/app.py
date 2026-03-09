@@ -791,7 +791,11 @@ class TodoApp(QMainWindow):
             import sys
             
             if hasattr(sys, '_MEIPASS'):
-                subprocess.Popen([sys.executable, "--update"])
+                env = os.environ.copy()
+                env.pop('_MEIPASS2', None)
+                env.pop('_MEIPASS', None)
+                DETACHED_PROCESS = 0x00000008
+                subprocess.Popen([sys.executable, "--update"], env=env, creationflags=DETACHED_PROCESS)
             else:
                 updater_path = os.path.join(os.path.dirname(GUI_DIR), "updater", "updater.py")
                 if os.path.exists(updater_path):
