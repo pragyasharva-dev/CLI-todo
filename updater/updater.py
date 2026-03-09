@@ -39,13 +39,22 @@ if not os.path.exists("TodoApp_new.exe"):
 
 print("Download finished")
 
-time.sleep(2)
+# Retry loop for replacing the executable
+max_retries = 10
+retry_delay = 1.0
 
-if os.path.exists("TodoApp.exe"):
-    os.replace("TodoApp.exe", "TodoApp_backup.exe")
-
-os.replace("TodoApp_new.exe", "TodoApp.exe")
-
-print("Update installed")
+for attempt in range(max_retries):
+    try:
+        if os.path.exists("TodoApp.exe"):
+            os.replace("TodoApp.exe", "TodoApp_backup.exe")
+        os.replace("TodoApp_new.exe", "TodoApp.exe")
+        print("Update installed successfully")
+        break
+    except PermissionError as e:
+        print(f"File locked, waiting for main app to close... (Attempt {attempt+1}/{max_retries})")
+        time.sleep(retry_delay)
+else:
+    print("Failed to install update: File remained locked. Make sure the app is fully closed.")
+    exit(1)
 
 subprocess.Popen(["TodoApp.exe"])
