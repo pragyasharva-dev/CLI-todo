@@ -27,14 +27,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize, QSettings, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor, QPalette, QPixmap, QBrush, QIcon
 
-# ---------------------- Paths -------------------------------------------
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
-if hasattr(sys, '_MEIPASS'):
-    # PyInstaller execution, assets unpack into _MEIPASS/GUI/assets
-    GUI_DIR = os.path.join(sys._MEIPASS, 'GUI')
-else:
-    # Normal execution
-    GUI_DIR = os.path.dirname(os.path.abspath(__file__))
+GUI_DIR = resource_path('GUI')
 
 # ---------------------- Stylesheets -------------------------------------
 
