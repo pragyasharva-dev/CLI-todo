@@ -16,6 +16,7 @@ from version import CURRENT_VERSION
 import sys
 import os
 import shutil
+import requests
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -787,25 +788,90 @@ class TodoApp(QMainWindow):
         )
         if reply == QMessageBox.StandardButton.Yes:
             import subprocess
+            import sys
+            
             if hasattr(sys, '_MEIPASS'):
-                updater_path = os.path.join(sys._MEIPASS, "updater", "updater.py")
+                subprocess.Popen([sys.executable, "--update"])
             else:
                 updater_path = os.path.join(os.path.dirname(GUI_DIR), "updater", "updater.py")
-                
-            if os.path.exists(updater_path):
-                subprocess.Popen([sys.executable, updater_path])
-                self.close()
-            else:
-                QMessageBox.warning(self, "Error", "Updater script not found.")
+                if os.path.exists(updater_path):
+                    subprocess.Popen([sys.executable, updater_path])
+                else:
+                    QMessageBox.warning(self, "Error", "Updater script not found.")
+                    return
+            
+            QApplication.quit()
 
 
 # -------------------------------- Entry point ----------------------------------
 
+def run_updater_process():
+    import requests
+    import os
+    import sys
+    import subprocess
+    import time
+    from version import latest
+    
+    # Wait for the old app instance to close and release the lock
+    time.sleep(2)
+    
+    try:
+        response = requests.get(latest)
+        release = response.json()
+        assets = release.get("assets")
+        if not assets:
+            sys.exit(1)
+            
+        download_url = assets[0]["browser_download_url"]
+        
+        r = requests.get(download_url, stream=True)
+        with open("TodoApp_new.exe", "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+                
+        current_exe = sys.executable
+        old_exe = current_exe + ".old"
+        
+        # Retry loop to smoothly rename the executables
+        for _ in range(10):
+            try:
+                if os.path.exists(old_exe):
+                    os.remove(old_exe)
+                os.rename(current_exe, old_exe)
+                os.rename("TodoApp_new.exe", current_exe)
+                break
+            except Exception:
+                time.sleep(1)
+                
+        subprocess.Popen([current_exe])
+    except Exception:
+        pass
+    
+    sys.exit(0)
+
+
 def main():
+    import sys
+    import os
+    
+    # Clean up any leftover update files when the app starts normally
+    if hasattr(sys, '_MEIPASS'):
+        try:
+            old_exe = sys.executable + ".old"
+            if os.path.exists(old_exe):
+                os.remove(old_exe)
+        except Exception:
+            pass
+
     app = QApplication(sys.argv)
     window = TodoApp()
     window.show()
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--update":
+        run_updater_process()
+    else:
+        main()
