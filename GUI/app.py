@@ -11,6 +11,7 @@ from src.task_service import (
     flush_task_list,
     update_task_view
 )
+from version import CURRENT_VERSION
 
 import sys
 import os
@@ -596,7 +597,7 @@ class TodoApp(QMainWindow):
         layout.addSpacing(12)
 
         # --- Footer ---
-        footer = QLabel("CLI-Todo  •  GUI Edition")
+        footer = QLabel(f"ToDoApp  •  v{CURRENT_VERSION}")
         footer.setObjectName("footer")
         footer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(footer)
