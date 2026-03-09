@@ -1,6 +1,6 @@
 # CLI-todo & TodoApp GUI
 
-**Version:** 2.0.4
+**Version:** 2.0.5
 
 A powerful, dual-interface task manager written in Python. It allows you to manage your tasks at lighting speed from your terminal, or through a beautiful, fully-themed Graphical User Interface with persistent storage and action-undo capabilities.
 
