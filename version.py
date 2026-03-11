@@ -1,7 +1,7 @@
 import requests
 from packaging import version
 
-CURRENT_VERSION = "2.0.8"
+CURRENT_VERSION = "2.0.9"
 latest = "https://api.github.com/repos/pragyasharva-dev/CLI-todo/releases/latest"
 
 def check_for_updates():
