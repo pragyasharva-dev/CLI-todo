@@ -34,20 +34,47 @@ jobs:
         run: |
           pytest
 
-      - name: Build executable
+      - name: Build Executables
         run: |
-          pyinstaller --onefile --windowed --name TodoApp --icon=GUI/assets/icon.ico --hidden-import PyQt6  --add-data "GUI/assets:GUI/assets" --add-data "updater:updater" GUI/app.py
+          # Build the main app
+          pyinstaller --onefile --windowed --name TodoApp --icon=GUI/assets/icon.ico --hidden-import PyQt6 --add-data "GUI/assets:GUI/assets" --add-data "updater:updater" GUI/app.py
+          
+          # Build the launcher
+          pyinstaller --onefile --windowed --name Launcher launcher/launcher.py
+
+      - name: Package Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Create the Launcher directory structure
+          mkdir TodoApp
+          mkdir "TodoApp/versions"
+          
+          # The tag name (e.g. v2.0.8)
+          $TAG_NAME = "${{ github.ref_name }}"
+          $APP_DIR = "TodoApp/versions/app-$TAG_NAME"
+          mkdir $APP_DIR
+          
+          # Move the compiled files into place
+          # The launcher goes in the root and is called TodoApp.exe
+          move dist/Launcher.exe TodoApp/TodoApp.exe
+          
+          # The actual app goes into the versioned folder
+          move dist/TodoApp.exe $APP_DIR/TodoApp.exe
+          
+          # Zip the whole package
+          Compress-Archive -Path TodoApp -DestinationPath TodoApp-Windows.zip
 
       - name: Upload artifact
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: TodoApp-Windows
-          path: dist/TodoApp.exe
+          path: TodoApp-Windows.zip
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/TodoApp.exe
+          files: TodoApp-Windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

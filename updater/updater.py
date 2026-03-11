@@ -36,39 +36,33 @@ def download_file(url, dest):
 def install_update():
     release = get_latest_release()
     url = get_download_url(release)
+    version_tag = release.get("tag_name", "unknown").replace("v", "")
+    
+    # We are running from versions/app-vX.X.X/ backend, so we need to go up two directories
+    # to find the main versions folder if running compiled, or use local dir for dev.
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(sys.executable)))
+    else:
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        
+    versions_dir = os.path.join(base_dir, "versions")
+    os.makedirs(versions_dir, exist_ok=True)
+    
+    new_version_dir = os.path.join(versions_dir, f"app-v{version_tag}")
+    if os.path.exists(new_version_dir):
+        print(f"Version {version_tag} is already downloaded.")
+        return
 
-    print("Downloading update...")
-    download_file(url, NEW_APP)
+    os.makedirs(new_version_dir, exist_ok=True)
+    new_app_path = os.path.join(new_version_dir, APP_NAME)
 
-    if not os.path.exists(NEW_APP):
+    print(f"Downloading update {version_tag} to {new_version_dir}...")
+    download_file(url, new_app_path)
+
+    if not os.path.exists(new_app_path):
         raise RuntimeError("Download failed")
 
-    print("Installing update...")
-
-    old_app = APP_NAME + ".old"
-    if os.path.exists(old_app):
-        try:
-            os.remove(old_app)
-        except OSError:
-            pass
-
-    if os.path.exists(APP_NAME):
-        try:
-            os.rename(APP_NAME, old_app)
-        except OSError as e:
-            raise RuntimeError(f"Could not rename running app: {e}")
-
-    os.rename(NEW_APP, APP_NAME)
-
-    print("Update installed")
-
-
-def run_app():
-    if not os.path.exists(APP_NAME):
-        print("App not found:", APP_NAME)
-        sys.exit(1)
-
-    subprocess.Popen([APP_NAME])
+    print(f"Update installed to {new_app_path}. Please restart the launcher to run it.")
 
 
 def main():
@@ -76,8 +70,6 @@ def main():
         install_update()
     except Exception as e:
         print("Update skipped:", e)
-
-    run_app()
 
 
 if __name__ == "__main__":
