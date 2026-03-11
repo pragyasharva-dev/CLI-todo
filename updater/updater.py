@@ -20,6 +20,12 @@ def get_download_url(release):
     if not assets:
         raise RuntimeError("No release assets found")
 
+    # Find the executable asset, not the zip
+    for asset in assets:
+        if asset["name"] == "TodoApp.exe":
+            return asset["browser_download_url"]
+
+    # Fallback to the first asset if not found
     return assets[0]["browser_download_url"]
 
 

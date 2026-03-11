@@ -59,7 +59,7 @@ jobs:
           move dist/Launcher.exe TodoApp/TodoApp.exe
           
           # The actual app goes into the versioned folder
-          move dist/TodoApp.exe $APP_DIR/TodoApp.exe
+          copy dist\TodoApp.exe $APP_DIR\TodoApp.exe
           
           # Zip the whole package
           Compress-Archive -Path TodoApp -DestinationPath TodoApp-Windows.zip
@@ -75,6 +75,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: TodoApp-Windows.zip
+          files: |
+            TodoApp-Windows.zip
+            dist/TodoApp.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
