@@ -789,93 +789,138 @@ class TodoApp(QMainWindow):
         if reply == QMessageBox.StandardButton.Yes:
             import subprocess
             import sys
-            
+
             if hasattr(sys, '_MEIPASS'):
-                env = os.environ.copy()
-                env.pop('_MEIPASS2', None)
-                env.pop('_MEIPASS', None)
-                DETACHED_PROCESS = 0x00000008
-                subprocess.Popen([sys.executable, "--update"], env=env, creationflags=DETACHED_PROCESS)
+                # Running as a frozen .exe — use batch script approach
+                try:
+                    self._do_exe_update()
+                except Exception as e:
+                    QMessageBox.warning(self, "Update Failed", f"Could not start update:\n{e}")
+                    return
             else:
+                # Running from source — use updater.py directly
                 updater_path = os.path.join(os.path.dirname(GUI_DIR), "updater", "updater.py")
                 if os.path.exists(updater_path):
                     subprocess.Popen([sys.executable, updater_path])
                 else:
                     QMessageBox.warning(self, "Error", "Updater script not found.")
                     return
-            
+
             QApplication.quit()
 
+    def _do_exe_update(self):
+        """Download the new exe and launch a batch script to swap files.
 
-# -------------------------------- Entry point ----------------------------------
+        This avoids the Windows file-lock problem: the batch script runs
+        outside of any Python process, so the .exe is not held open during
+        the rename.
+        """
+        import subprocess
+        import sys
+        from version import latest
 
-def run_updater_process():
-    import requests
-    import os
-    import sys
-    import subprocess
-    import time
-    from version import latest
-    
-    # Wait for the old app instance to close and release the lock
-    time.sleep(2)
-    
-    try:
-        current_exe = sys.executable
+        current_exe = os.path.abspath(sys.executable)
         exe_dir = os.path.dirname(current_exe)
+        exe_name = os.path.basename(current_exe)
         new_exe = os.path.join(exe_dir, "TodoApp_new.exe")
-        old_exe = current_exe + ".old"
-        
-        response = requests.get(latest)
+        old_exe = os.path.join(exe_dir, "TodoApp_old.exe")
+        bat_path = os.path.join(exe_dir, "_update.bat")
+
+        # 1. Fetch the download URL from GitHub releases
+        response = requests.get(latest, timeout=15)
         release = response.json()
         assets = release.get("assets")
         if not assets:
-            sys.exit(1)
-            
+            raise Exception("No release assets found on GitHub.")
         download_url = assets[0]["browser_download_url"]
-        
-        r = requests.get(download_url, stream=True)
+
+        # 2. Download the new executable
+        r = requests.get(download_url, stream=True, timeout=60)
+        if r.status_code != 200:
+            raise Exception(f"Download failed with status {r.status_code}")
         with open(new_exe, "wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
-                
-        # Retry loop to smoothly rename the executables
-        for _ in range(10):
-            try:
-                if os.path.exists(old_exe):
-                    os.remove(old_exe)
-                os.rename(current_exe, old_exe)
-                os.rename(new_exe, current_exe)
-                break
-            except Exception:
-                time.sleep(1)
-                
-        # Detach the new process completely
-        DETACHED_PROCESS = 0x00000008
-        subprocess.Popen([current_exe], creationflags=DETACHED_PROCESS)
-    except Exception as e:
-        # If it fails, log it to the same directory for debugging
-        try:
-            with open(os.path.join(exe_dir, "updater_error.log"), "w") as f:
-                f.write(str(e))
-        except:
-            pass
-    
-    sys.exit(0)
+
+        # 3. Write a batch script that waits, swaps, and relaunches
+        #    - Uses 'tasklist' polling to wait for our PID to disappear
+        #    - Retries the rename in a loop in case the OS is slow to release
+        bat_content = f"""@echo off
+setlocal EnableDelayedExpansion
+set "LOG={os.path.join(exe_dir, '_update_log.txt')}"
+
+echo [%DATE% %TIME%] Update script started > "%LOG%"
+
+REM Wait for the app to exit (5 seconds)
+echo [%DATE% %TIME%] Waiting 5s for app to exit... >> "%LOG%"
+ping -n 6 127.0.0.1 >NUL
+
+REM Retry moving old exe out of the way, up to 30 attempts (~60s)
+set RETRIES=0
+:RENAME
+set /a RETRIES+=1
+echo [%DATE% %TIME%] Move attempt !RETRIES! >> "%LOG%"
+
+if exist "{old_exe}" (
+    del /f "{old_exe}" >NUL 2>&1
+)
+
+move /Y "{current_exe}" "{old_exe}" >NUL 2>&1
+if errorlevel 1 (
+    if !RETRIES! GEQ 30 (
+        echo [%DATE% %TIME%] FAILED after 30 attempts >> "%LOG%"
+        goto DONE
+    )
+    ping -n 3 127.0.0.1 >NUL
+    goto RENAME
+)
+
+echo [%DATE% %TIME%] Old exe moved OK >> "%LOG%"
+
+move /Y "{new_exe}" "{current_exe}" >NUL 2>&1
+if errorlevel 1 (
+    echo [%DATE% %TIME%] FAILED: could not move new exe >> "%LOG%"
+    move /Y "{old_exe}" "{current_exe}" >NUL 2>&1
+    goto DONE
+)
+
+echo [%DATE% %TIME%] Update complete. Launching... >> "%LOG%"
+start "" "{current_exe}"
+
+:DONE
+echo [%DATE% %TIME%] Script finished. >> "%LOG%"
+"""
+        with open(bat_path, "w") as f:
+            f.write(bat_content)
+
+        # 4. Launch the batch script hidden and detached
+        subprocess.Popen(
+            bat_path,
+            shell=True,
+            creationflags=0x08000000,  # CREATE_NO_WINDOW
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+
+# -------------------------------- Entry point ----------------------------------
 
 
 def main():
     import sys
     import os
-    
-    # Clean up any leftover update files when the app starts normally
+
+    # Clean up leftover update files when the app starts normally
     if hasattr(sys, '_MEIPASS'):
-        try:
-            old_exe = sys.executable + ".old"
-            if os.path.exists(old_exe):
-                os.remove(old_exe)
-        except Exception:
-            pass
+        exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+        for leftover in ["TodoApp_old.exe", "TodoApp_new.exe", "_update.bat", "_update_log.txt"]:
+            try:
+                path = os.path.join(exe_dir, leftover)
+                if os.path.exists(path):
+                    os.remove(path)
+            except Exception:
+                pass
 
     app = QApplication(sys.argv)
     window = TodoApp()
@@ -883,8 +928,4 @@ def main():
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--update":
-        run_updater_process()
-    else:
-        main()
+    main()

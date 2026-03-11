@@ -1,60 +1,84 @@
-import requests
-import time
 import os
 import subprocess
+import requests
+import sys
 from version import latest
 
+APP_NAME = "TodoApp.exe"
+NEW_APP = "TodoApp_new.exe"
 
-def get_download_url():
-    response = requests.get(latest)
-    release = response.json()
 
-    assets = release.get("assets")
+def get_latest_release():
+    r = requests.get(latest, timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def get_download_url(release):
+    assets = release.get("assets", [])
 
     if not assets:
-        raise Exception("No release assets found")
+        raise RuntimeError("No release assets found")
 
     return assets[0]["browser_download_url"]
 
 
-def download_update(url):
-    response = requests.get(url, stream=True)
+def download_file(url, dest):
+    with requests.get(url, stream=True, timeout=30) as r:
+        r.raise_for_status()
 
-    if response.status_code != 200:
-        raise Exception("Download failed")
-
-    with open("TodoApp_new.exe", "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
+        with open(dest, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
 
 
-download_url = get_download_url()
-print("Downloading:", download_url)
+def install_update():
+    release = get_latest_release()
+    url = get_download_url(release)
 
-download_update(download_url)
+    print("Downloading update...")
+    download_file(url, NEW_APP)
 
-if not os.path.exists("TodoApp_new.exe"):
-    print("Download failed")
-    exit()
+    if not os.path.exists(NEW_APP):
+        raise RuntimeError("Download failed")
 
-print("Download finished")
+    print("Installing update...")
 
-# Retry loop for replacing the executable
-max_retries = 10
-retry_delay = 1.0
+    old_app = APP_NAME + ".old"
+    if os.path.exists(old_app):
+        try:
+            os.remove(old_app)
+        except OSError:
+            pass
 
-for attempt in range(max_retries):
+    if os.path.exists(APP_NAME):
+        try:
+            os.rename(APP_NAME, old_app)
+        except OSError as e:
+            raise RuntimeError(f"Could not rename running app: {e}")
+
+    os.rename(NEW_APP, APP_NAME)
+
+    print("Update installed")
+
+
+def run_app():
+    if not os.path.exists(APP_NAME):
+        print("App not found:", APP_NAME)
+        sys.exit(1)
+
+    subprocess.Popen([APP_NAME])
+
+
+def main():
     try:
-        if os.path.exists("TodoApp.exe"):
-            os.replace("TodoApp.exe", "TodoApp_backup.exe")
-        os.replace("TodoApp_new.exe", "TodoApp.exe")
-        print("Update installed successfully")
-        break
-    except PermissionError as e:
-        print(f"File locked, waiting for main app to close... (Attempt {attempt+1}/{max_retries})")
-        time.sleep(retry_delay)
-else:
-    print("Failed to install update: File remained locked. Make sure the app is fully closed.")
-    exit(1)
+        install_update()
+    except Exception as e:
+        print("Update skipped:", e)
 
-subprocess.Popen(["TodoApp.exe"])
+    run_app()
+
+
+if __name__ == "__main__":
+    main()
